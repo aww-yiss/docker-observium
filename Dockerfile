@@ -1,18 +1,5 @@
 # == Observium
 #
-# Provide the following environment variables to source Observium from your
-# Professional Edition subscription instead of the Community Edition upstream:
-#
-#   USE_SVN=true
-#   SVN_USER=username
-#   SVN_PASS=password
-#   SVN_REPO=http://url/to/repo@rev
-#
-# If you don't have a subscription but run your own managed repository,
-# SVN_REPO is arbritrarily accepted. If USE_SVN is specified, credentials and
-# repository information must also be otherwise will fallback to community
-# version.
-#
 # The following volumes may be used with their descriptions next to them:
 #
 #   /config                     : Should contain your `config.php`, otherwise
@@ -27,8 +14,7 @@
 #                                 socket instead of using TCP.
 #
 #
-FROM phusion/baseimage:0.9.16
-MAINTAINER Codey Oxley <codey@yelp.com>
+FROM ubuntu:18.04
 EXPOSE 8000/tcp
 VOLUME ["/config", \
         "/opt/observium/html", \
@@ -59,42 +45,35 @@ ENV LC_ALL C.UTF-8
 ENV LANG en_US.UTF-8
 ENV LANGUAGE en_US.UTF-8
 
-# Install locales
-RUN locale-gen cs_CZ.UTF-8
-RUN locale-gen de_DE.UTF-8
-RUN locale-gen en_US.UTF-8
-RUN locale-gen es_ES.UTF-8
-RUN locale-gen fr_FR.UTF-8
-RUN locale-gen it_IT.UTF-8
-RUN locale-gen pl_PL.UTF-8
-RUN locale-gen pt_BR.UTF-8
-RUN locale-gen ru_RU.UTF-8
-RUN locale-gen sl_SI.UTF-8
-RUN locale-gen uk_UA.UTF-8
-
 # Install Observium prereqs
 RUN apt-get update -q && \
     apt-get install -y --no-install-recommends \
       at \
+      autoconf \
       fping \
+      gcc \
       git \
       graphviz \
       graphviz \
       imagemagick \
       ipmitool \
-      libapache2-mod-php5 \
+      libapache2-mod-php7.2 \
+      libc-dev \
+      libmcrypt-dev \
       libvirt-bin \
+      make \
       mariadb-client \
       mtr-tiny \
       nmap \
-      php5-cli \
-      php5-gd \
-      php5-json \
-      php5-ldap \
-      php5-mcrypt \
-      php5-mysql \
-      php5-snmp \
       php-pear \
+      php7.2-cli \
+      php7.2-dev \
+      php7.2-gd \
+      php7.2-json \
+      php7.2-ldap \
+      php7.2-mysql \
+      php7.2-snmp \
+      pkg-config \
       pwgen \
       python-mysqldb \
       rrdcached \
@@ -112,9 +91,12 @@ RUN mkdir -p \
         /opt/observium/logs \
         /opt/observium/rrd \
 
+# install mcrypt for php7.2
+pecl install mcrypt-1.0.1
+
 # === Webserver - Apache + PHP5
 
-RUN php5enmod mcrypt && \
+RUN phpenmod mcrypt && \
     a2enmod rewrite
 
 RUN mkdir /etc/service/apache2

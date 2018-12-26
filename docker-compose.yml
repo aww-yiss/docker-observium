@@ -1,0 +1,34 @@
+
+version: '2'
+
+services:
+
+  mysql:
+    image: "mysql:latest"
+    command: --default-authentication-plugin=mysql_native_password
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: observium
+      MYSQL_DATABASE: observium
+      MYSQL_USER: observium
+      MYSQL_PASSWORD: observium
+    network_mode: host
+    volumes: 
+      - "/opt/observium/volumes/database:/var/lib/mysql:rw"
+    ports:
+      - "3306:3306"
+
+  observium:
+    image: "aww-yiss/observium:latest"
+    ports:
+      - "8000:8000"
+    network_mode: host
+    environment:
+      WEATHERMAP: "true"
+    volumes: 
+      - "/opt/observium/volumes/config:/config:rw"
+      - "/opt/observium/volumes/html:/opt/observium/html:rw"
+      - "/opt/observium/volumes/rrd:/opt/observium/rrd:rw"
+      - "/opt/observium/volumes/logs:/opt/observium/logs:rw"
+    depends_on: 
+      - mysql
